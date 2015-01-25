@@ -64,11 +64,9 @@ Chris Diemer
 	problems = server.sendmail(from_addr, to_addr, mime_message.as_string())
 	
 		
-def num_lines(file):
-	number_lines = 0
-	for character in file:
-		if character is '\r' or '\n':
-			number_lines += 1
+def num_lines(file):	
+	lines = [1 for character in file if character is '\r' or '\n']
+	number_lines = reduce(lambda x,y: x+y, lines, 0)
 	return number_lines
 	
 def main():
@@ -80,19 +78,21 @@ def main():
 	start = num_lines(Past_emails_file)
 	end = start + 300
 	
+	print start
+	
 	#login to server once
 	# server = smtplib.SMTP('smtp.gmail.com', 587)
 	# server.starttls()
 	# server.login(gmail_name,gmail_pw)
 	
-	for i in range(start,end):
-		to_addr = email_targets[i].email
-		name = email_targets[i].name
-		company_name = email_targets[i].sbc
-		# send_email(to_addr, gmail_name + '@gmail.com', name, company_name, server)
-		Past_emails_file.write(to_addr)
-		Past_emails_file.write('\n')
-		print company_name
+	# for i in range(start,end):
+		# to_addr = email_targets[i].email
+		# name = email_targets[i].name
+		# company_name = email_targets[i].sbc
+		# # send_email(to_addr, gmail_name + '@gmail.com', name, company_name, server)
+		# Past_emails_file.write(to_addr)
+		# Past_emails_file.write('\n')
+		# print company_name
 		
 	#quit the server
 	# server.quit()
