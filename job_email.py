@@ -1,4 +1,5 @@
 import csv
+import sys
 import smtplib
 from os.path import basename
 from email.mime.application import MIMEApplication
@@ -6,8 +7,14 @@ from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email.mime.multipart import MIMEMultipart
 
+#global configuration variables
+data_file = sys.argv[1]
+gmail_name = 'diemerEE'
+gmail_pw = 'XXXXXX' #dummy password for public exposure
+resume_filename = "ChrisDiemer_Resume.pdf"
+
 def get_csv_rows():
-	with open('Minnesota_12-14.csv') as file:
+	with open(data_file + '.csv') as file:
 		csvfile = csv.DictReader(file)
 		return [row for row in csvfile]		
 
@@ -25,7 +32,6 @@ def get_email_targets(rows):
 	return email_targets
 	
 def send_email(to_addr, from_addr, name, company_name, server):
-	resume_filename = "ChrisDiemer_Resume.pdf"
 	message = """
 Hello %s,
 
@@ -61,30 +67,30 @@ def num_lines(file):
 	return number_lines
 	
 def main():
-	from_addr = 'diemerEE@gmail.com'
-	Past_emails_file = open("past_emails_Minnesota.txt","r+")
-	start = num_lines(Past_emails_file)
-	end = start + 300
-	
 	#get all the unique emails from the csv file
 	csvrows = get_csv_rows()
 	email_targets = get_email_targets(csvrows)
 	
+	Past_emails_file = open(data_file + ".txt","a+")
+	start = num_lines(Past_emails_file)
+	end = start + 300
+	
 	#login to server once
-	server = smtplib.SMTP('smtp.gmail.com', 587)
-	server.starttls()
-	server.login('diemerEE','chris345')
+	# server = smtplib.SMTP('smtp.gmail.com', 587)
+	# server.starttls()
+	# server.login(gmail_name,gmail_pw)
 	
 	for i in range(start,end):
 		to_addr = email_targets[i][1] 
 		name = email_targets[i][0]
 		company_name = email_targets[i][2]
-		send_email(to_addr, from_addr, name, company_name, server)
+		# send_email(to_addr, gmail_name + '@gmail.com', name, company_name, server)
 		Past_emails_file.write(to_addr)
 		Past_emails_file.write('\n')
+		print company_name
 		
 	#quit the server
-	server.quit()
+	# server.quit()
 	#close the file
 	Past_emails_file.close()
 
