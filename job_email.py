@@ -13,6 +13,12 @@ gmail_name = 'diemerEE'
 gmail_pw = 'XXXXXX' #dummy password for public exposure
 resume_filename = "ChrisDiemer_Resume.pdf"
 
+class email_target:
+	def __init__(self, name, email, sbc):
+		self.name = name
+		self.email = email
+		self.sbc = sbc
+
 def get_csv_rows():
 	with open(data_file + '.csv') as file:
 		csvfile = csv.DictReader(file)
@@ -22,10 +28,9 @@ def get_email_targets(rows):
 	email_targets = []
 	for row in rows:
 		unique = True
-		new_target = [row['Contact Name'], row['Contact Email'], row['SBC']]
-		# if not new_target[0] or not new_target[1] or not new_target[2]: continue
+		new_target = email_target(*[row['Contact Name'], row['Contact Email'], row['SBC']])
 		for target in email_targets:
-			if target[1].lower() == new_target[1].lower():
+			if target.email.lower() == new_target.email.lower():
 				unique = False
 		if(unique):
 			email_targets.append(new_target)
@@ -81,9 +86,9 @@ def main():
 	# server.login(gmail_name,gmail_pw)
 	
 	for i in range(start,end):
-		to_addr = email_targets[i][1] 
-		name = email_targets[i][0]
-		company_name = email_targets[i][2]
+		to_addr = email_targets[i].email
+		name = email_targets[i].name
+		company_name = email_targets[i].sbc
 		# send_email(to_addr, gmail_name + '@gmail.com', name, company_name, server)
 		Past_emails_file.write(to_addr)
 		Past_emails_file.write('\n')
