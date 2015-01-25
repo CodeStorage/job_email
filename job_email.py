@@ -19,11 +19,17 @@ class email_target:
 		self.email = email
 		self.sbc = sbc
 
-def get_csv_rows():
-	with open(data_file + '.csv') as file:
+#get data from a csv file
+#@param filename is the name of a csv file in the working directory
+#returns a list of lists with key-value pair elements
+def get_csv_rows(filename):
+	with open(filename) as file:
 		csvfile = csv.DictReader(file)
 		return [row for row in csvfile]		
 
+#get unique email targets from a key-value pair list 
+#@param rows is a list of lists with key-value pair elements
+#return unique email targets
 def get_email_targets(rows):
 	email_targets = []
 	for row in rows:
@@ -36,6 +42,7 @@ def get_email_targets(rows):
 			email_targets.append(new_target)
 	return email_targets
 	
+#send an email with a predefined subject, body, and attachment.
 def send_email(to_addr, from_addr, name, company_name, server):
 	message = """
 Hello %s,
@@ -63,39 +70,37 @@ Chris Diemer
 	
 	problems = server.sendmail(from_addr, to_addr, mime_message.as_string())
 	
-		
+
+#get the number of lines in a text file using list comprehension	
 def num_lines(file):	
-	lines = [1 for character in file if character is '\r' or '\n']
+	lines = [1 for character in file if character is '\n' or '\r']
 	number_lines = reduce(lambda x,y: x+y, lines, 0)
 	return number_lines
 	
 def main():
 	#get all the unique emails from the csv file
-	csvrows = get_csv_rows()
+	csvrows = get_csv_rows(data_file + '.csv')
 	email_targets = get_email_targets(csvrows)
 	
+	#find the number of emails sent from this data set already
+	#only 500 emails can be sent through gmail per day without flagging
+	#appears to only send about 109 per run before disconnecting
 	Past_emails_file = open(data_file + ".txt","a+")
 	start = num_lines(Past_emails_file)
-	end = start + 300
-	
-	print start
+	end = start + int(sys.argv[2])
 	
 	#login to server once
-	# server = smtplib.SMTP('smtp.gmail.com', 587)
-	# server.starttls()
-	# server.login(gmail_name,gmail_pw)
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	server.login(gmail_name,gmail_pw)
 	
-	# for i in range(start,end):
-		# to_addr = email_targets[i].email
-		# name = email_targets[i].name
-		# company_name = email_targets[i].sbc
-		# # send_email(to_addr, gmail_name + '@gmail.com', name, company_name, server)
-		# Past_emails_file.write(to_addr)
-		# Past_emails_file.write('\n')
-		# print company_name
+	for i in range(start,end):
+		send_email(email_targets[i].email, gmail_name + '@gmail.com', email_targets[i].name, email_targets[i].sbc, server)
+		Past_emails_file.write(email_targets[i].email)
+		Past_emails_file.write('\n')
 		
 	#quit the server
-	# server.quit()
+	server.quit()
 	#close the file
 	Past_emails_file.close()
 
