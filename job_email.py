@@ -9,9 +9,9 @@ from email.mime.multipart import MIMEMultipart
 
 #global configuration variables
 data_file = sys.argv[1]
-gmail_name = 'diemerEE'
-gmail_pw = 'XXXXXX' #dummy password for public exposure
-resume_filename = "ChrisDiemer_Resume.pdf"
+gmail_name = 'XXXXX'
+gmail_pw = 'XXXXXXX' #dummy password for public exposure
+resume_filename = "XXXXXXX"
 
 class email_target:
 	def __init__(self, name, email, sbc):
@@ -43,7 +43,7 @@ def get_email_targets(rows):
 	return email_targets
 	
 #send an email with a predefined subject, body, and attachment.
-def send_email(to_addr, from_addr, name, company_name, server):
+def send_email(from_addr, email_target, server):
 	message = """
 Hello %s,
 
@@ -55,10 +55,10 @@ any questions or opportunities.
 
 Thank you for your time,
 Chris Diemer
-	""" % (name, company_name)
+	""" % (email_target.name, email_target.sbc)
 	mime_message = MIMEMultipart(
 	From=from_addr,
-	To=to_addr,
+	To=email_target.email,
 	Date=formatdate(localtime=True)
 	)
 	mime_message['Subject'] = 'Looking for career opportunities at %s' % company_name
@@ -68,7 +68,7 @@ Chris Diemer
 	attach_file.add_header('Content-Disposition','attachment', filename=resume_filename)
 	mime_message.attach(attach_file)
 	
-	problems = server.sendmail(from_addr, to_addr, mime_message.as_string())
+	problems = server.sendmail(from_addr, email_target.email, mime_message.as_string())
 	
 
 #get the number of lines in a text file using list comprehension	
@@ -95,7 +95,7 @@ def main():
 	server.login(gmail_name,gmail_pw)
 	
 	for i in range(start,end):
-		send_email(email_targets[i].email, gmail_name + '@gmail.com', email_targets[i].name, email_targets[i].sbc, server)
+		send_email(gmail_name + '@gmail.com', email_targets[i], server)
 		Past_emails_file.write(email_targets[i].email)
 		Past_emails_file.write('\n')
 		
